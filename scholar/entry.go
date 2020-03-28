@@ -115,7 +115,22 @@ func (e *Entry) Year() string {
 
 // FirstAuthorLast return the lastname of the first author of the entry.
 func (e *Entry) FirstAuthorLast() string {
-	return strings.Split(e.Required["author"], ",")[0]
+    authors := strings.Split(e.Required["author"], ",")
+
+    auth := authors[0]
+    bits := strings.Split(auth, " ")
+    last := bits[len(bits) - 1]
+    last2 := ""
+
+    if len(authors) == 2 {
+	auth2 := authors[1]
+	bits2 := strings.Split(auth2, " ")
+	last2 = bits2[len(bits2) - 1]
+    } else if len(authors) > 2 {
+	last2 = "EtAl"
+    }
+
+    return fmt.Sprintf("%s%s", last, last2)
 }
 
 // GetKey return the key of the entry. If there is no key, a new key is
@@ -123,7 +138,7 @@ func (e *Entry) FirstAuthorLast() string {
 // For example: einstein1922
 func (e *Entry) GetKey() string {
 	if e.Key == "" {
-		e.Key = fmt.Sprintf("%s%s", strings.ToLower(e.FirstAuthorLast()), e.Year())
+		e.Key = fmt.Sprintf("%s%s", e.FirstAuthorLast(), e.Year())
 	}
 	return e.Key
 }
