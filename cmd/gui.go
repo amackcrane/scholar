@@ -433,7 +433,10 @@ func searcher(input string, entry *scholar.Entry) bool {
 	title := strings.Replace(strings.ToLower(entry.Required["title"]), " ", "", -1)
 	aus := strings.Replace(strings.ToLower(entry.Required["author"]), " ", "", -1)
 	k := strings.Replace(strings.ToLower(entry.Key), " ", "", -1)
-	s := fmt.Sprintf("%s%s%s", title, aus, k)
+
+        tag := strings.Replace(strings.ToLower(entry.Required["tag"]), " ", "", -1)
+
+	s := fmt.Sprintf("%s%s%s$s", title, aus, k, tag)
 	input = strings.TrimSpace(input)
 	input = strings.Replace(strings.ToLower(input), " ", "", -1)
 
