@@ -113,24 +113,46 @@ func (e *Entry) Year() string {
 	return fmt.Sprintf("%.4s", e.Required["date"])
 }
 
-// FirstAuthorLast return the lastname of the first author of the entry.
+// FirstAuthorLast return the lastnames of first one or two authors
 func (e *Entry) FirstAuthorLast() string {
-    authors := strings.Split(e.Required["author"], ",")
+	author_string := e.Required["author"]
 
-    auth := authors[0]
-    bits := strings.Split(auth, " ")
-    last := bits[len(bits) - 1]
-    last2 := ""
+	// identify "Last, First and ..." format
+	and_format := strings.Contains(author_string, " and ")
+	// (incl. case of single author:)
+	words_before_comma := strings.Split(strings.Split(author_string, ",")[0], " ")
+	and_format = and_format || len(words_before_comma) == 1
 
-    if len(authors) == 2 {
-	auth2 := authors[1]
-	bits2 := strings.Split(auth2, " ")
-	last2 = bits2[len(bits2) - 1]
-    } else if len(authors) > 2 {
-	last2 = "EtAl"
-    }
+	// convert to ["First Last", "First Last"]
+	var authors []string
+	if and_format {
+		authors = strings.Split(author_string, " and ")
+		for i,a := range authors {
+			parts := strings.Split(a, ", ")
+			parts = []string{parts[1], parts[0]}
+			authors[i] = strings.Join(parts, " ")
+		}
+	} else {
+		authors = strings.Split(author_string, ",")
+	}
 
-    return fmt.Sprintf("%s%s", last, last2)
+	// Get first author surname
+	auth := authors[0]
+	bits := strings.Split(auth, " ")
+	last := bits[len(bits) - 1]
+	last2 := ""
+
+	// Get second author surname, if two authors
+	if len(authors) == 2 {
+		auth2 := authors[1]
+		bits2 := strings.Split(auth2, " ")
+		last2 = bits2[len(bits2) - 1]
+	} else if len(authors) > 2 {
+		// Handle 3+ author case
+		last2 = "EtAl"
+	}
+
+	return fmt.Sprintf("%s%s", last, last2)
 }
 
 // GetKey return the key of the entry. If there is no key, a new key is
