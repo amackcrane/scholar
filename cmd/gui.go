@@ -52,8 +52,13 @@ func guiQuery(entries []*scholar.Entry, search []string) *scholar.Entry {
 	defer close(resetCursorCh)
 
 	g.Highlight = true
-	g.SelFgColor = gocui.ColorGreen | gocui.AttrBold
-	g.FgColor = gocui.ColorWhite
+	//g.SelFgColor = gocui.ColorGreen | gocui.AttrBold
+	//g.FgColor = gocui.ColorWhite
+	// Default fg color for active view
+	g.SelFgColor = gocui.ColorBlack | gocui.AttrBold
+	// Default fg color for non-active views?
+	g.FgColor = gocui.ColorBlack
+
 
 	g.SetManagerFunc(func(g *gocui.Gui) error {
 		maxX, maxY := g.Size()
@@ -379,7 +384,7 @@ func guiSort(entries []*scholar.Entry, field string) {
 }
 
 func formatEntry(entry *scholar.Entry, width int) string {
-	return fmt.Sprintf("\033[32;1m%-*.*s  \033[33;1m(%-4.4s)  \033[31;1m%-*.*s\033[0m\n",
+	return fmt.Sprintf("\033[34m%-*.*s  \033[33;1m(%-4.4s)  \033[31m%-*.*s\033[0m\n",
 		width/3*2-4, width/3*2-4, entry.Required["title"],
 		entry.Required["date"],
 		width/3, width/3, entry.Required["author"])
@@ -389,12 +394,12 @@ func formatEntryInfo(w io.Writer, e *scholar.Entry) {
 	fmt.Fprintf(w, "\033[32;7m[%s]\033[0m \033[31;4m%s\033[0m\n",
 		strings.ToTitle(e.Type),
 		e.GetKey())
-	fmt.Fprintf(w, "Title:\n  \033[32;1m%s\033[0m\n",
+	fmt.Fprintf(w, "Title:\n  \033[34m%s\033[0m\n",
 		e.Required["title"])
 	aus := strings.Split(e.Required["author"], " and ")
 	fmt.Fprintf(w, "Author(s):\n")
 	for _, au := range aus {
-		fmt.Fprintf(w, "  \033[31;1m%s\033[0m\n",
+		fmt.Fprintf(w, "  \033[31m%s\033[0m\n",
 			au)
 	}
 
@@ -413,7 +418,12 @@ func formatEntryInfo(w io.Writer, e *scholar.Entry) {
 	sort.Strings(fields)
 	for _, field := range fields {
 		if value := e.Required[field]; value != "" {
-			fmt.Fprintf(w, "%s:\n  \033[33;1m%s\033[0m\n", strings.Title(field), value)
+			// give keyword tags a special color
+			if field == "tag" {
+				fmt.Fprintf(w, "%s:\n  \033[35m%s\033[0m\n", strings.Title(field), value)
+			} else {
+				fmt.Fprintf(w, "%s:\n  \033[33;1m%s\033[0m\n", strings.Title(field), value)
+			}
 		}
 	}
 
