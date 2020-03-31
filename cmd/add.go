@@ -61,6 +61,9 @@ Add a new entry to a library.
 		if _, err := os.Stat(file); os.IsNotExist(err) {
 			file = ""
 		} else {
+			// As soon as we know file exists, we'd like to pull it up for reference
+			open(file)
+			
 			input = ""
 		}
 		if attachFlag != "" {
