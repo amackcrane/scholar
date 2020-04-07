@@ -103,8 +103,10 @@ func open(file string) error {
 		args = []string{"/c", "start"}
 	case "darwin":
 		cmd = "open"
+	case "linux":
+		cmd = "firefox"
 	default:
-		cmd = "xdg-open"
+		panic("OS not handled in general.go:open()")
 	}
 	args = append(args, file)
 
