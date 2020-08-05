@@ -116,38 +116,28 @@ func (e *Entry) Year() string {
 // FirstAuthorLast return the lastnames of first one or two authors
 func (e *Entry) FirstAuthorLast() string {
 	author_string := e.Required["author"]
-
-	// identify "Last, First and ..." format
-	and_format := strings.Contains(author_string, " and ")
-	// (incl. case of single author:)
-	words_before_comma := strings.Split(strings.Split(author_string, ",")[0], " ")
-	and_format = and_format || len(words_before_comma) == 1
-
-	// convert to ["First Last", "First Last"]
-	var authors []string
-	if and_format {
-		authors = strings.Split(author_string, " and ")
-		for i,a := range authors {
-			parts := strings.Split(a, ", ")
-			parts = []string{parts[1], parts[0]}
-			authors[i] = strings.Join(parts, " ")
+	
+	author_strings := strings.Split(author_string, " and ")
+	var surnames []string
+	for _,a := range author_strings {
+		parts := strings.Split(a, ", ")
+		// Warn if too many commas indicate format is wrong
+		if len(parts) > 2 {
+			fmt.Println("Authors must be given in 'first, last and ...' format. If key comes out garbled use 'scholar edit' to fix.")
 		}
-	} else {
-		authors = strings.Split(author_string, ",")
+		surnames = append(surnames, parts[0])
 	}
 
 	// Get first author surname
-	auth := authors[0]
-	bits := strings.Split(auth, " ")
-	last := bits[len(bits) - 1]
+	last := surnames[0]
+	last = strings.Join(strings.Split(last, " "), "")
 	last2 := ""
 
 	// Get second author surname, if two authors
-	if len(authors) == 2 {
-		auth2 := authors[1]
-		bits2 := strings.Split(auth2, " ")
-		last2 = bits2[len(bits2) - 1]
-	} else if len(authors) > 2 {
+	if len(surnames) == 2 {
+		last2 = surnames[1]
+		last2 = strings.Join(strings.Split(last2, " "), "")
+	} else if len(surnames) > 2 {
 		// Handle 3+ author case
 		last2 = "EtAl"
 	}
